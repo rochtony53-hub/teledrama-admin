@@ -12,7 +12,7 @@ const list = s => (s || '').split(',').map(x => x.trim()).filter(Boolean);
 let ready;
 async function ensure(db) {
   if (ready) return;
-  for (const c of ["dramas ADD COLUMN original_title TEXT DEFAULT ''", "dramas ADD COLUMN tagline TEXT DEFAULT ''", "dramas ADD COLUMN genre TEXT DEFAULT ''", "dramas ADD COLUMN year INTEGER DEFAULT 0", "dramas ADD COLUMN rating REAL DEFAULT 0", "dramas ADD COLUMN cast_list TEXT DEFAULT ''", "dramas ADD COLUMN tags TEXT DEFAULT ''", "dramas ADD COLUMN featured INTEGER DEFAULT 0", "dramas ADD COLUMN status TEXT DEFAULT 'ongoing'", "episodes ADD COLUMN duration INTEGER DEFAULT 0", "dramas ADD COLUMN trending INTEGER DEFAULT 0", "dramas ADD COLUMN is_new INTEGER DEFAULT 0", "episodes ADD COLUMN synopsis TEXT DEFAULT ''", "episodes ADD COLUMN free INTEGER DEFAULT 0"]) {
+  for (const c of ["dramas ADD COLUMN original_title TEXT DEFAULT ''", "dramas ADD COLUMN tagline TEXT DEFAULT ''", "dramas ADD COLUMN genre TEXT DEFAULT ''", "dramas ADD COLUMN year INTEGER DEFAULT 0", "dramas ADD COLUMN rating REAL DEFAULT 0", "dramas ADD COLUMN cast_list TEXT DEFAULT ''", "dramas ADD COLUMN tags TEXT DEFAULT ''", "dramas ADD COLUMN featured INTEGER DEFAULT 0", "dramas ADD COLUMN status TEXT DEFAULT 'ongoing'", "episodes ADD COLUMN duration INTEGER DEFAULT 0", "dramas ADD COLUMN trending INTEGER DEFAULT 0", "dramas ADD COLUMN is_new INTEGER DEFAULT 0", "episodes ADD COLUMN synopsis TEXT DEFAULT ''", "episodes ADD COLUMN free INTEGER DEFAULT 0", "dramas ADD COLUMN poster_file TEXT DEFAULT ''"]) {
     try { await db.prepare('ALTER TABLE ' + c).run(); } catch {}
   }
   ready = 1;
@@ -40,7 +40,7 @@ export async function onRequest({ request, env, params }) {
       return j(d.map(x => {
         const eps = e.filter(y => y.drama_id == x.id).map(y => ({ id: y.id, n: y.num, title: y.title, duration: hm(y.duration), seconds: y.duration, synopsis: y.synopsis, video: o + '/api/video/' + y.id, free: !!y.free, viewsCount: y.views }));
         const vc = eps.reduce((t, y) => t + y.viewsCount, 0);
-        return { id: String(x.id), title: x.title, originalTitle: x.original_title, tagline: x.tagline, genre: x.genre, year: x.year, rating: x.rating, views: fv(vc), viewsCount: vc, poster: x.poster, art: !x.poster, synopsis: x.synopsis, cast: list(x.cast_list), tags: list(x.tags), featured: !!x.featured, trending: x.trending || undefined, isNew: !!x.is_new, episodes: eps };
+        return { id: String(x.id), title: x.title, originalTitle: x.original_title, tagline: x.tagline, genre: x.genre, year: x.year, rating: x.rating, views: fv(vc), viewsCount: vc, poster: x.poster_file ? o + '/api/poster/' + x.id + '?v=' + x.poster_file.slice(-8) : x.poster, posterUrl: x.poster, art: !(x.poster || x.poster_file), synopsis: x.synopsis, cast: list(x.cast_list), tags: list(x.tags), featured: !!x.featured, trending: x.trending || undefined, isNew: !!x.is_new, episodes: eps };
       }));
     }
     if (a === 'video' && m === 'GET') {
@@ -53,6 +53,16 @@ export async function onRequest({ request, env, params }) {
       const v = await fetch(`https://api.telegram.org/file/bot${env.TG_TOKEN}/${g.result.file_path}`, { headers: h });
       const o = new Headers(v.headers);
       o.set('Content-Type', 'video/mp4'); o.set('Cache-Control', 'public,max-age=86400');
+      Object.entries(cors).forEach(([k, x]) => o.set(k, x));
+      return new Response(v.body, { status: v.status, headers: o });
+    }
+    if (a === 'poster' && m === 'GET') {
+      const r = await env.DB.prepare('SELECT poster_file FROM dramas WHERE id=?').bind(b).first();
+      if (!r || !r.poster_file) return new Response('', { status: 404, headers: cors });
+      const g = await (await fetch(`https://api.telegram.org/bot${env.TG_TOKEN}/getFile?file_id=${r.poster_file}`)).json();
+      if (!g.ok) return j({ error: g.description }, 502);
+      const v = await fetch(`https://api.telegram.org/file/bot${env.TG_TOKEN}/${g.result.file_path}`);
+      const o = new Headers({ 'Content-Type': 'image/jpeg', 'Cache-Control': 'public,max-age=31536000,immutable' });
       Object.entries(cors).forEach(([k, x]) => o.set(k, x));
       return new Response(v.body, { status: v.status, headers: o });
     }
@@ -85,6 +95,16 @@ export async function onRequest({ request, env, params }) {
     }
     if (a === 'episodes' && m === 'DELETE') {
       await env.DB.prepare('DELETE FROM episodes WHERE id=?').bind(b).run();
+      return j({ ok: 1 });
+    }
+    if (a === 'poster' && m === 'POST') {
+      const f = await request.formData(), file = f.get('file');
+      if (!file || !f.get('drama_id')) return j({ error: 'Image ou drame manquant' }, 400);
+      const t = new FormData();
+      t.append('chat_id', env.TG_CHAT_ID); t.append('photo', file, file.name || 'poster.jpg');
+      const r = await (await fetch(`https://api.telegram.org/bot${env.TG_TOKEN}/sendPhoto`, { method: 'POST', body: t })).json();
+      if (!r.ok) return j({ error: 'Telegram : ' + r.description }, 502);
+      await env.DB.prepare('UPDATE dramas SET poster_file=? WHERE id=?').bind(r.result.photo[r.result.photo.length - 1].file_id, f.get('drama_id')).run();
       return j({ ok: 1 });
     }
     if (a === 'upload' && m === 'POST') {

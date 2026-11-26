@@ -156,10 +156,11 @@ async function api(p,o={}){
 function up(fd,cb){return new Promise((ok,ko)=>{const x=new XMLHttpRequest();x.open('POST','/api/upload');x.setRequestHeader('Authorization','Bearer '+T);
   x.upload.onprogress=e=>cb(e.lengthComputable?Math.round(e.loaded/e.total*100):0);
   x.onload=()=>{let d={};try{d=JSON.parse(x.responseText)}catch{}x.status<300?ok():ko(new Error(d.error||x.status))};x.onerror=()=>ko(new Error('Erreur réseau'));x.send(fd)})}
+const shrink=f=>new Promise(r=>{const i=new Image();i.onload=()=>{const k=Math.min(1,1000/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);c.toBlob(b=>r(b||f),'image/jpeg',.86)};i.onerror=()=>r(f);i.src=URL.createObjectURL(f)});
 const dur=f=>new Promise(r=>{const v=document.createElement('video');v.preload='metadata';v.onloadedmetadata=()=>r(Math.round(v.duration)||0);v.onerror=()=>r(0);v.src=URL.createObjectURL(f)});
 async function load(){[D,S]=await Promise.all([api('dramas'),api('stats')])}
 const th=d=>'<div class="th" style="'+(d.poster?'background-image:url('+esc(d.poster)+')':'')+'">'+(d.poster?'':esc((d.title||'?')[0]))+'</div>';
-const FIELDS=[['title','Titre *','text','L’Héritier Disparu'],['original_title','Titre original','text','The Lost Heir'],['tagline','Accroche','text',''],['genre','Genre','text','Drame · Famille'],['year','Année','number','2025'],['rating','Note sur 10','number','9.2'],['trending','Rang tendance (1 = premier)','number',''],['poster','URL du poster (vide = affiche typographique)','url',''],['cast_list','Distribution (séparée par des virgules)','text',''],['tags','Tags (séparés par des virgules)','text','']];
+const FIELDS=[['title','Titre *','text','L’Héritier Disparu'],['original_title','Titre original','text','The Lost Heir'],['tagline','Accroche','text',''],['genre','Genre','text','Drame · Famille'],['year','Année','number','2025'],['rating','Note sur 10','number','9.2'],['trending','Rang tendance (1 = premier)','number',''],['poster','Ou URL d’une image externe','url',''],['cast_list','Distribution (séparée par des virgules)','text',''],['tags','Tags (séparés par des virgules)','text','']];
 
 /* ============ Views ============ */
 function vDash(){
@@ -203,11 +204,12 @@ function vCat(){
 
 function vEdit(){
   const d=D.find(x=>x.id==cur)||{episodes:[],tags:[],cast:[]};
-  const v={title:d.title,original_title:d.originalTitle,tagline:d.tagline,genre:d.genre,year:d.year,rating:d.rating,trending:d.trending,poster:d.poster,cast_list:(d.cast||[]).join(', '),tags:(d.tags||[]).join(', ')};
+  const v={title:d.title,original_title:d.originalTitle,tagline:d.tagline,genre:d.genre,year:d.year,rating:d.rating,trending:d.trending,poster:d.posterUrl,cast_list:(d.cast||[]).join(', '),tags:(d.tags||[]).join(', ')};
   const nx=Math.max(0,...d.episodes.map(e=>e.n))+1;
   return `<button class="g sm" data-go="cat">← Retour au catalogue</button>
   <h2 style="margin-top:14px">${d.id?esc(d.title):'Nouveau drama'}</h2>
   <div class="card"><h3>Informations</h3>
+    ${d.id?`<div style="display:flex;gap:14px;align-items:center;margin-bottom:8px"><div class="th" style="width:72px;height:100px;${d.poster?'background-image:url('+esc(d.poster)+')':''}">${d.poster?'':esc((d.title||'?')[0])}</div><div class="grow"><label style="margin:0">Image du poster (affiche)<input id="pf" type="file" accept="image/*"></label><button class="g sm" id="pu" style="margin-top:8px">Envoyer l’image</button></div></div>`:'<p class="m">Enregistrez d’abord le drama pour envoyer son image.</p>'}
     ${FIELDS.map(([k,l,t,p])=>`<label>${l}<input id="f_${k}" type="${t}" step="any" placeholder="${esc(p)}" value="${esc(v[k])}"></label>`).join('')}
     <label>Synopsis<textarea id="f_synopsis" rows="4">${esc(d.synopsis)}</textarea></label>
     <div style="display:flex;gap:22px;flex-wrap:wrap"><label class="chk"><input id="f_featured" type="checkbox" ${d.featured?'checked':''}> À la une (★)</label><label class="chk"><input id="f_is_new" type="checkbox" ${d.isNew?'checked':''}> Nouveau</label></div>
@@ -266,6 +268,9 @@ function bind(){
     try{const r=await api('dramas',{method:'POST',body:x});cur=r.id;vue='edit';toast('Drama enregistré ✓');render()}catch(e){toast(e.message,true)}finally{sv.disabled=false}};
   const dl=$('#del');if(dl)dl.onclick=async()=>{if(confirm('Supprimer ce drama et tous ses épisodes ?')){await api('dramas/'+cur,{method:'DELETE'});await load();cur=null;vue='cat';toast('Drama supprimé');render()}};
   $$('#view [data-de]').forEach(b=>b.onclick=async()=>{if(confirm('Retirer cet épisode ?')){await api('episodes/'+b.dataset.de,{method:'DELETE'});await load();toast('Épisode retiré');render()}});
+  const pu=$('#pu');if(pu)pu.onclick=async()=>{const f=$('#pf').files[0];if(!f)return toast('Choisissez une image',true);
+    pu.disabled=true;pu.textContent='Envoi…';
+    try{const fd=new FormData();fd.append('file',await shrink(f),'poster.jpg');fd.append('drama_id',cur);await api('poster',{method:'POST',body:fd});toast('Image envoyée ✓');render()}catch(e){toast(e.message,true);pu.disabled=false;pu.textContent='Envoyer l’image'}};
   const eu=$('#eu');if(eu)eu.onclick=async()=>{
     const f=$('#ef').files[0];if(!f)return toast('Choisissez une vidéo',true);
     const fd=new FormData();fd.append('file',f);fd.append('drama_id',cur);fd.append('num',$('#en').value);fd.append('title',$('#et').value);fd.append('synopsis',$('#es').value);fd.append('free',$('#efree').checked?'1':'0');fd.append('duration',await dur(f));
