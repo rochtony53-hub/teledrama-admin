@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="mg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teledrama Admin</title>
+<style>
+:root{--bg:#15131a;--p:#201d27;--l:#332f3d;--t:#f1eef5;--m:#9b95a8;--a:#e0457b}
+*{box-sizing:border-box}
+body{margin:0 auto;padding:16px;max-width:640px;background:var(--bg);color:var(--t);font:15px/1.45 system-ui,sans-serif}
+h1{font-size:20px;display:flex;justify-content:space-between;align-items:center;margin:4px 0 14px}
+.c{background:var(--p);border:1px solid var(--l);border-radius:10px;padding:14px;margin-bottom:12px}
+input,textarea{width:100%;margin:6px 0;padding:10px;background:var(--bg);color:var(--t);border:1px solid var(--l);border-radius:6px;font:inherit}
+button{background:var(--a);color:#fff;border:0;border-radius:6px;padding:9px 14px;font:inherit;font-weight:600}
+button.g{background:none;color:var(--m);border:1px solid var(--l);padding:4px 9px;font-weight:400}
+button:disabled{opacity:.5}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--a);outline-offset:2px}
+.r{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--l)}
+.m{color:var(--m);margin:4px 0}
+.f{margin-top:10px;padding-top:10px;border-top:1px dashed var(--l)}
+</style></head><body><div id="app"></div>
+<script>
+const app=document.getElementById('app');let T=localStorage.getItem('t');
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(p,o={}){
+  const h={Authorization:'Bearer '+T};
+  if(o.body&&!(o.body instanceof FormData)){h['Content-Type']='application/json';o.body=JSON.stringify(o.body)}
+  const r=await fetch('/api/'+p,{...o,headers:h});
+  if(r.status==401){T=null;localStorage.removeItem('t');render();throw new Error('Miditra indray')}
+  const d=await r.json();if(!r.ok)throw new Error(d.error||r.status);return d}
+async function render(){
+  if(!T){
+    app.innerHTML='<h1>Teledrama Admin</h1><div class="c"><input id="pw" type="password" placeholder="Teny miafina"><button id="go">Hiditra</button><p class="m" id="er"></p></div>';
+    document.getElementById('go').onclick=async()=>{
+      try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('pw').value})});
+      const d=await r.json();if(!r.ok)throw 0;T=d.token;localStorage.setItem('t',T);render()}
+      catch{document.getElementById('er').textContent='Diso ny teny miafina'}};return}
+  const[D,S]=await Promise.all([api('dramas'),api('stats')]);
+  app.innerHTML='<h1>Teledrama Admin <button class="g" id="out">Hivoaka</button></h1>'
+  +'<div class="c"><b>Fijerena rehetra: '+S.total+'</b>'+S.rows.map(r=>'<div class="r"><span>'+esc(r.title)+'</span><span>'+r.v+' fijerena, '+r.n+' episode</span></div>').join('')+'</div>'
+  +'<div class="c"><b>Drama vaovao</b><input id="dt" placeholder="Lohateny"><textarea id="ds" rows="2" placeholder="Famintinana"></textarea><input id="dp" placeholder="URL an\'ny poster"><button id="da">Ampio ny drama</button></div>'
+  +D.map(d=>'<div class="c"><b>'+esc(d.title)+'</b> <button class="g" data-dd="'+d.id+'">Fafao</button><p class="m">'+esc(d.synopsis)+'</p>'
+    +d.episodes.map(e=>'<div class="r"><span>Ep '+e.num+' '+esc(e.title)+'</span><span>'+e.views+' <button class="g" data-de="'+e.id+'">Fafao</button></span></div>').join('')
+    +'<div class="f" data-d="'+d.id+'"><input class="en" type="number" value="'+(d.episodes.length+1)+'"><input class="et" placeholder="Lohateny episode"><input class="ef" type="file" accept="video/*"><button class="eu">Alefaso ny video</button></div></div>').join('');
+  document.getElementById('out').onclick=()=>{T=null;localStorage.removeItem('t');render()};
+  document.getElementById('da').onclick=async()=>{try{await api('dramas',{method:'POST',body:{title:document.getElementById('dt').value,synopsis:document.getElementById('ds').value,poster:document.getElementById('dp').value}});render()}catch(e){alert(e.message)}};
+  document.querySelectorAll('[data-dd]').forEach(b=>b.onclick=async()=>{if(confirm('Fafana ny drama sy ny episode rehetra?')){await api('dramas/'+b.dataset.dd,{method:'DELETE'});render()}});
+  document.querySelectorAll('[data-de]').forEach(b=>b.onclick=async()=>{if(confirm('Fafana ity episode ity?')){await api('episodes/'+b.dataset.de,{method:'DELETE'});render()}});
+  document.querySelectorAll('.eu').forEach(b=>b.onclick=async()=>{
+    const f=b.parentElement,file=f.querySelector('.ef').files[0];if(!file)return alert('Safidio aloha ny video');
+    const fd=new FormData();fd.append('file',file);fd.append('drama_id',f.dataset.d);fd.append('num',f.querySelector('.en').value);fd.append('title',f.querySelector('.et').value);
+    b.disabled=true;b.textContent='Mandefa...';
+    try{await api('upload',{method:'POST',body:fd});render()}catch(e){alert(e.message);b.disabled=false;b.textContent='Alefaso ny video'}})}
+render().catch(()=>{});
+</script></body></html>
