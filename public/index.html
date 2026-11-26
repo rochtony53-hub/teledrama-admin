@@ -1,51 +1,98 @@
 <!doctype html>
-<html lang="mg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teledrama Admin</title>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teledrama Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#15131a;--p:#201d27;--l:#332f3d;--t:#f1eef5;--m:#9b95a8;--a:#e0457b}
+:root{--ink:oklch(14% .02 255);--ink2:oklch(18% .025 255);--ink3:oklch(23% .025 255);--line:oklch(28% .02 255/.6);--bone:oklch(96% .01 80);--mist:oklch(74% .02 255);--dim:oklch(58% .02 255);--gold:oklch(72% .11 75);--blood:oklch(58% .19 25)}
 *{box-sizing:border-box}
-body{margin:0 auto;padding:16px;max-width:640px;background:var(--bg);color:var(--t);font:15px/1.45 system-ui,sans-serif}
-h1{font-size:20px;display:flex;justify-content:space-between;align-items:center;margin:4px 0 14px}
-.c{background:var(--p);border:1px solid var(--l);border-radius:10px;padding:14px;margin-bottom:12px}
-input,textarea{width:100%;margin:6px 0;padding:10px;background:var(--bg);color:var(--t);border:1px solid var(--l);border-radius:6px;font:inherit}
-button{background:var(--a);color:#fff;border:0;border-radius:6px;padding:9px 14px;font:inherit;font-weight:600}
-button.g{background:none;color:var(--m);border:1px solid var(--l);padding:4px 9px;font-weight:400}
+body{margin:0;background:var(--ink);color:var(--bone);font:15px/1.5 Archivo,system-ui,sans-serif}
+header{position:sticky;top:0;z-index:5;background:var(--ink);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:10px 16px}
+.logo{font:600 20px Oswald,sans-serif}.logo i{color:var(--gold);font-style:normal}
+nav{display:flex;gap:2px;margin-left:auto}
+main{max-width:720px;margin:auto;padding:16px}
+h2{font:500 22px Oswald,sans-serif;margin:0 0 12px}
+h3{font:500 17px Oswald,sans-serif;margin:20px 0 8px}
+button{font:inherit;cursor:pointer}
+.t{background:none;border:0;color:var(--mist);padding:8px 10px;border-radius:8px}.t.on{background:var(--ink3);color:var(--bone)}
+.b{background:var(--gold);color:var(--ink);border:0;border-radius:8px;padding:10px 16px;font-weight:600}
+.g{background:none;color:var(--mist);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+.d{color:var(--blood);border-color:var(--blood)}
 button:disabled{opacity:.5}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--a);outline-offset:2px}
-.r{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-top:1px solid var(--l)}
-.m{color:var(--m);margin:4px 0}
-.f{margin-top:10px;padding-top:10px;border-top:1px dashed var(--l)}
-</style></head><body><div id="app"></div>
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.s{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:12px}.s b{display:block;font:500 26px Oswald,sans-serif;color:var(--gold)}.s span{color:var(--mist);font-size:13px}
+.row{display:flex;gap:12px;align-items:center;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;width:100%;text-align:left;color:inherit}
+.th{width:44px;height:62px;border-radius:6px;background:var(--ink3) center/cover;flex:none;display:grid;place-items:center;font:600 18px Oswald,sans-serif;color:var(--gold)}
+.m{color:var(--mist);font-size:13px}.grow{flex:1;min-width:0}.grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
+label{display:block;color:var(--mist);font-size:13px;margin-top:12px}
+input,textarea,select{width:100%;margin-top:4px;padding:10px;background:var(--ink);color:var(--bone);border:1px solid var(--line);border-radius:8px;font:inherit}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chk{display:flex;align-items:center;gap:8px;color:var(--bone)}.chk input{width:auto;margin:0}
+.bar{height:6px;background:var(--ink3);border-radius:3px;margin-top:6px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}
+.hint{background:var(--ink);border:1px dashed var(--line);border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,monospace;color:var(--mist);overflow-x:auto;white-space:pre}
+.chip{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mist)}
+</style></head><body><header><span class="logo">Tele<i>drama</i> Studio</span><nav id="nav"></nav></header><main id="app"></main>
 <script>
-const app=document.getElementById('app');let T=localStorage.getItem('t');
+const app=document.getElementById('app'),nav=document.getElementById('nav');
+let T=localStorage.getItem('t'),D=[],S={rows:[],total:0},cur=null,tab='cat';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=s=>!s?'–':s>=3600?Math.floor(s/3600)+' h '+String(Math.floor(s%3600/60)).padStart(2,'0'):Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
 async function api(p,o={}){
   const h={Authorization:'Bearer '+T};
   if(o.body&&!(o.body instanceof FormData)){h['Content-Type']='application/json';o.body=JSON.stringify(o.body)}
   const r=await fetch('/api/'+p,{...o,headers:h});
-  if(r.status==401){T=null;localStorage.removeItem('t');render();throw new Error('Miditra indray')}
+  if(r.status==401&&p!='login'){T=null;localStorage.removeItem('t');render();throw new Error('Session expirée')}
   const d=await r.json();if(!r.ok)throw new Error(d.error||r.status);return d}
+function up(fd,cb){return new Promise((ok,ko)=>{const x=new XMLHttpRequest();x.open('POST','/api/upload');x.setRequestHeader('Authorization','Bearer '+T);
+  x.upload.onprogress=e=>cb(Math.round(e.loaded/e.total*100));
+  x.onload=()=>{let d={};try{d=JSON.parse(x.responseText)}catch{}x.status<300?ok():ko(new Error(d.error||x.status))};x.onerror=()=>ko(new Error('Erreur réseau'));x.send(fd)})}
+const dur=f=>new Promise(r=>{const v=document.createElement('video');v.preload='metadata';v.onloadedmetadata=()=>r(Math.round(v.duration)||0);v.onerror=()=>r(0);v.src=URL.createObjectURL(f)});
+async function load(){[D,S]=await Promise.all([api('dramas'),api('stats')])}
+const th=d=>'<div class="th" style="'+(d.poster?'background-image:url('+esc(d.poster)+')':'')+'">'+(d.poster?'':esc((d.title||'?')[0]))+'</div>';
+const FIELDS=[['title','Titre *','text'],['original_title','Titre original','text'],['tagline','Accroche','text'],['genre','Genre','text'],['year','Année','number'],['rating','Note sur 10','number'],['poster','URL du poster','url'],['cast_list','Distribution (séparée par des virgules)','text'],['tags','Tags (séparés par des virgules)','text']];
+function shell(h){
+  nav.innerHTML=T?'<button class="t '+(tab=='cat'?'on':'')+'" data-tab="cat">Catalogue</button><button class="t '+(tab=='st'?'on':'')+'" data-tab="st">Statistiques</button><button class="t" id="out">Quitter</button>':'';
+  app.innerHTML=h;
+  nav.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;cur=null;render()});
+  const o=document.getElementById('out');if(o)o.onclick=()=>{T=null;localStorage.removeItem('t');render()}}
+function login(){
+  shell('<div class="card"><h2>Connexion</h2><label>Mot de passe</label><input id="pw" type="password" autocomplete="current-password"><p class="m" id="er"></p><button class="b" id="go">Se connecter</button></div>');
+  const go=async()=>{try{const d=await api('login',{method:'POST',body:{password:document.getElementById('pw').value}});T=d.token;localStorage.setItem('t',T);render()}catch(e){document.getElementById('er').textContent=e.message}};
+  document.getElementById('go').onclick=go;document.getElementById('pw').onkeydown=e=>e.key=='Enter'&&go()}
+function catalogue(){
+  const n=D.reduce((s,d)=>s+d.episodes.length,0);
+  shell('<div class="stats"><div class="s"><b>'+D.length+'</b><span>Dramas</span></div><div class="s"><b>'+n+'</b><span>Épisodes</span></div><div class="s"><b>'+S.total+'</b><span>Vues</span></div></div>'
+  +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">Catalogue</h2><button class="b" id="new">Nouveau drama</button></div>'
+  +(D.length?D.map(d=>'<button class="row" data-id="'+d.id+'">'+th(d)+'<span class="grow"><b>'+esc(d.title)+'</b><span class="m">'+esc([d.genre,d.year||''].filter(Boolean).join(' · '))+'</span><br><span class="m">'+d.episodes.length+' ép. · '+d.views+' vues</span></span><span class="chip">'+(d.status=='done'?'Terminé':'En cours')+'</span></button>').join(''):'<p class="m">Aucun drama pour l’instant. Créez le premier.</p>'));
+  document.getElementById('new').onclick=()=>{cur=0;render()};
+  app.querySelectorAll('.row').forEach(b=>b.onclick=()=>{cur=+b.dataset.id;render()})}
+function stats(){
+  const mx=Math.max(1,...S.rows.map(r=>r.v));
+  shell('<h2>Statistiques</h2><div class="card"><b>'+S.total+' vues au total</b>'+S.rows.map(r=>'<div style="margin-top:12px"><div style="display:flex;justify-content:space-between"><span>'+esc(r.title)+'</span><span class="m">'+r.v+' vues · '+r.n+' ép.</span></div><div class="bar"><i style="width:'+Math.round(r.v/mx*100)+'%"></i></div></div>').join('')+'</div>')}
+function edit(){
+  const d=D.find(x=>x.id==cur)||{episodes:[],tags:[],status:'ongoing'};
+  const v=k=>k=='tags'?d.tags.join(', '):(d[k]??'');
+  shell('<button class="g" id="back">Retour</button><h2 style="margin-top:12px">'+(d.id?esc(d.title):'Nouveau drama')+'</h2><div class="card">'
+  +FIELDS.map(([k,l,t])=>'<label>'+l+'<input id="f_'+k+'" type="'+t+'" step="any" value="'+esc(v(k))+'"></label>').join('')
+  +'<label>Synopsis<textarea id="f_synopsis" rows="4">'+esc(d.synopsis)+'</textarea></label>'
+  +'<div class="two"><label>Statut<select id="f_status"><option value="ongoing">En cours</option><option value="done">Terminé</option></select></label><label class="chk" style="margin-top:34px"><input id="f_featured" type="checkbox" '+(d.featured?'checked':'')+'>À la une</label></div>'
+  +'<div style="display:flex;gap:8px;margin-top:16px"><button class="b" id="save">Enregistrer</button>'+(d.id?'<button class="g d" id="del">Supprimer</button>':'')+'</div></div>'
+  +(d.id?'<h3>Épisodes ('+d.episodes.length+')</h3>'+d.episodes.map(e=>'<div class="row"><span class="grow"><b>Ép. '+e.num+(e.title?' · '+esc(e.title):'')+'</b><span class="m">'+fmt(e.duration)+' · '+e.views+' vues</span></span><button class="g d" data-de="'+e.id+'">Retirer</button></div>').join('')
+  +'<div class="card"><b>Ajouter un épisode</b><div class="two"><label>N°<input id="en" type="number" value="'+(d.episodes.length?Math.max(...d.episodes.map(e=>e.num))+1:1)+'"></label><label>Titre<input id="et"></label></div><label>Vidéo (50 Mo max)<input id="ef" type="file" accept="video/*"></label><div class="bar"><i id="pg" style="width:0"></i></div><button class="b" id="eu" style="margin-top:12px">Envoyer</button>'
+  +'<h3>Film long ? Découpe automatique</h3><p class="m">Une vidéo de 1 à 3 h se découpe sur Termux ou un PC (ffmpeg), puis chaque épisode est envoyé ici.</p><div class="hint">export ADMIN_URL='+location.origin+'\nexport ADMIN_PASSWORD=...\n./tools/split-upload.sh film.mp4 '+d.id+' 120</div></div>':''));
+  document.getElementById('f_status').value=d.status||'ongoing';
+  document.getElementById('back').onclick=()=>{cur=null;render()};
+  document.getElementById('save').onclick=async()=>{const x={id:d.id};FIELDS.forEach(([k])=>x[k]=document.getElementById('f_'+k).value);x.synopsis=document.getElementById('f_synopsis').value;x.status=document.getElementById('f_status').value;x.featured=document.getElementById('f_featured').checked?1:0;
+    try{await api('dramas',{method:'POST',body:x});await load();if(!d.id)cur=null;render()}catch(e){alert(e.message)}};
+  const del=document.getElementById('del');if(del)del.onclick=async()=>{if(confirm('Supprimer ce drama et tous ses épisodes ?')){await api('dramas/'+d.id,{method:'DELETE'});await load();cur=null;render()}};
+  app.querySelectorAll('[data-de]').forEach(b=>b.onclick=async()=>{if(confirm('Retirer cet épisode ?')){await api('episodes/'+b.dataset.de,{method:'DELETE'});await load();render()}});
+  const eu=document.getElementById('eu');if(eu)eu.onclick=async()=>{const f=document.getElementById('ef').files[0];if(!f)return alert('Choisissez une vidéo');
+    const fd=new FormData();fd.append('file',f);fd.append('drama_id',d.id);fd.append('num',document.getElementById('en').value);fd.append('title',document.getElementById('et').value);fd.append('duration',await dur(f));
+    eu.disabled=true;eu.textContent='Envoi…';
+    try{await up(fd,p=>document.getElementById('pg').style.width=p+'%');await load();render()}catch(e){alert(e.message);eu.disabled=false;eu.textContent='Envoyer'}}}
 async function render(){
-  if(!T){
-    app.innerHTML='<h1>Teledrama Admin</h1><div class="c"><input id="pw" type="password" placeholder="Teny miafina"><button id="go">Hiditra</button><p class="m" id="er"></p></div>';
-    document.getElementById('go').onclick=async()=>{
-      try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('pw').value})});
-      const d=await r.json();if(!r.ok)throw 0;T=d.token;localStorage.setItem('t',T);render()}
-      catch{document.getElementById('er').textContent='Diso ny teny miafina'}};return}
-  const[D,S]=await Promise.all([api('dramas'),api('stats')]);
-  app.innerHTML='<h1>Teledrama Admin <button class="g" id="out">Hivoaka</button></h1>'
-  +'<div class="c"><b>Fijerena rehetra: '+S.total+'</b>'+S.rows.map(r=>'<div class="r"><span>'+esc(r.title)+'</span><span>'+r.v+' fijerena, '+r.n+' episode</span></div>').join('')+'</div>'
-  +'<div class="c"><b>Drama vaovao</b><input id="dt" placeholder="Lohateny"><textarea id="ds" rows="2" placeholder="Famintinana"></textarea><input id="dp" placeholder="URL an\'ny poster"><button id="da">Ampio ny drama</button></div>'
-  +D.map(d=>'<div class="c"><b>'+esc(d.title)+'</b> <button class="g" data-dd="'+d.id+'">Fafao</button><p class="m">'+esc(d.synopsis)+'</p>'
-    +d.episodes.map(e=>'<div class="r"><span>Ep '+e.num+' '+esc(e.title)+'</span><span>'+e.views+' <button class="g" data-de="'+e.id+'">Fafao</button></span></div>').join('')
-    +'<div class="f" data-d="'+d.id+'"><input class="en" type="number" value="'+(d.episodes.length+1)+'"><input class="et" placeholder="Lohateny episode"><input class="ef" type="file" accept="video/*"><button class="eu">Alefaso ny video</button></div></div>').join('');
-  document.getElementById('out').onclick=()=>{T=null;localStorage.removeItem('t');render()};
-  document.getElementById('da').onclick=async()=>{try{await api('dramas',{method:'POST',body:{title:document.getElementById('dt').value,synopsis:document.getElementById('ds').value,poster:document.getElementById('dp').value}});render()}catch(e){alert(e.message)}};
-  document.querySelectorAll('[data-dd]').forEach(b=>b.onclick=async()=>{if(confirm('Fafana ny drama sy ny episode rehetra?')){await api('dramas/'+b.dataset.dd,{method:'DELETE'});render()}});
-  document.querySelectorAll('[data-de]').forEach(b=>b.onclick=async()=>{if(confirm('Fafana ity episode ity?')){await api('episodes/'+b.dataset.de,{method:'DELETE'});render()}});
-  document.querySelectorAll('.eu').forEach(b=>b.onclick=async()=>{
-    const f=b.parentElement,file=f.querySelector('.ef').files[0];if(!file)return alert('Safidio aloha ny video');
-    const fd=new FormData();fd.append('file',file);fd.append('drama_id',f.dataset.d);fd.append('num',f.querySelector('.en').value);fd.append('title',f.querySelector('.et').value);
-    b.disabled=true;b.textContent='Mandefa...';
-    try{await api('upload',{method:'POST',body:fd});render()}catch(e){alert(e.message);b.disabled=false;b.textContent='Alefaso ny video'}})}
-render().catch(()=>{});
+  if(!T)return login();
+  try{await load()}catch{return}
+  if(tab=='st')stats();else if(cur!==null)edit();else catalogue()}
+render();
 </script></body></html>
