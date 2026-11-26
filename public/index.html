@@ -1,98 +1,290 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teledrama Studio</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teledrama Studio — Admin Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:oklch(14% .02 255);--ink2:oklch(18% .025 255);--ink3:oklch(23% .025 255);--line:oklch(28% .02 255/.6);--bone:oklch(96% .01 80);--mist:oklch(74% .02 255);--dim:oklch(58% .02 255);--gold:oklch(72% .11 75);--blood:oklch(58% .19 25)}
+:root{--ink:oklch(13% .02 255);--ink2:oklch(17% .025 255);--ink3:oklch(22% .025 255);--line:oklch(28% .02 255/.55);--bone:oklch(96% .01 80);--mist:oklch(75% .02 255);--dim:oklch(58% .02 255);--gold:oklch(72% .11 75);--gold2:oklch(80% .12 80);--blood:oklch(58% .19 25);--green:oklch(70% .15 160);--side:248px}
 *{box-sizing:border-box}
-body{margin:0;background:var(--ink);color:var(--bone);font:15px/1.5 Archivo,system-ui,sans-serif}
-header{position:sticky;top:0;z-index:5;background:var(--ink);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;padding:10px 16px}
-.logo{font:600 20px Oswald,sans-serif}.logo i{color:var(--gold);font-style:normal}
-nav{display:flex;gap:2px;margin-left:auto}
-main{max-width:720px;margin:auto;padding:16px}
-h2{font:500 22px Oswald,sans-serif;margin:0 0 12px}
-h3{font:500 17px Oswald,sans-serif;margin:20px 0 8px}
+body{margin:0;background:var(--ink);color:var(--bone);font:15px/1.55 Archivo,system-ui,sans-serif}
 button{font:inherit;cursor:pointer}
-.t{background:none;border:0;color:var(--mist);padding:8px 10px;border-radius:8px}.t.on{background:var(--ink3);color:var(--bone)}
-.b{background:var(--gold);color:var(--ink);border:0;border-radius:8px;padding:10px 16px;font-weight:600}
-.g{background:none;color:var(--mist);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
-.d{color:var(--blood);border-color:var(--blood)}
-button:disabled{opacity:.5}
+::-webkit-scrollbar{width:10px;height:10px}::-webkit-scrollbar-thumb{background:var(--ink3);border-radius:6px}::-webkit-scrollbar-track{background:transparent}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-.s{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:12px}.s b{display:block;font:500 26px Oswald,sans-serif;color:var(--gold)}.s span{color:var(--mist);font-size:13px}
-.row{display:flex;gap:12px;align-items:center;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:8px;width:100%;text-align:left;color:inherit}
-.th{width:44px;height:62px;border-radius:6px;background:var(--ink3) center/cover;flex:none;display:grid;place-items:center;font:600 18px Oswald,sans-serif;color:var(--gold)}
-.m{color:var(--mist);font-size:13px}.grow{flex:1;min-width:0}.grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.card{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:12px}
-label{display:block;color:var(--mist);font-size:13px;margin-top:12px}
-input,textarea,select{width:100%;margin-top:4px;padding:10px;background:var(--ink);color:var(--bone);border:1px solid var(--line);border-radius:8px;font:inherit}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.chk{display:flex;align-items:center;gap:8px;color:var(--bone)}.chk input{width:auto;margin:0}
-.bar{height:6px;background:var(--ink3);border-radius:3px;margin-top:6px}.bar i{display:block;height:100%;background:var(--gold);border-radius:3px}
-.hint{background:var(--ink);border:1px dashed var(--line);border-radius:8px;padding:10px;font:12px/1.5 ui-monospace,monospace;color:var(--mist);overflow-x:auto;white-space:pre}
-.chip{font-size:12px;border:1px solid var(--line);border-radius:99px;padding:1px 8px;color:var(--mist)}
-</style></head><body><header><span class="logo">Tele<i>drama</i> Studio</span><nav id="nav"></nav></header><main id="app"></main>
+
+/* ---------- Layout ---------- */
+#login-view{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(900px 500px at 70% -10%,oklch(25% .05 75/.25),transparent),var(--ink)}
+.login-card{width:100%;max-width:380px;background:var(--ink2);border:1px solid var(--line);border-radius:16px;padding:32px;box-shadow:0 24px 60px oklch(0% 0 0/.5)}
+.login-card .logo{font:600 26px Oswald,sans-serif;margin-bottom:4px}
+#app{display:none;min-height:100vh}
+#app.on{display:grid;grid-template-columns:var(--side) 1fr}
+
+/* ---------- Sidebar ---------- */
+aside{position:sticky;top:0;height:100vh;background:var(--ink2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 12px;z-index:20}
+.logo{font:600 21px Oswald,sans-serif;padding:4px 10px 16px;border-bottom:1px solid var(--line);margin-bottom:14px}.logo i{color:var(--gold);font-style:normal}
+.logo small{display:block;font:500 10px Archivo,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-top:2px}
+.side-label{font:600 10px Archivo,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);padding:10px 10px 6px}
+.nv{display:flex;align-items:center;gap:10px;width:100%;background:none;border:0;color:var(--mist);padding:10px 12px;border-radius:10px;text-align:left;font-weight:500}
+.nv:hover{background:var(--ink3);color:var(--bone)}
+.nv.on{background:linear-gradient(90deg,oklch(72% .11 75/.16),transparent);color:var(--gold);box-shadow:inset 2px 0 0 var(--gold)}
+.nv svg{width:18px;height:18px;flex:none}
+.side-foot{margin-top:auto;border-top:1px solid var(--line);padding-top:12px}
+.admin-chip{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;margin-bottom:8px}
+.admin-chip .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),oklch(55% .15 60));display:grid;place-items:center;font:600 15px Oswald,sans-serif;color:var(--ink)}
+.admin-chip b{display:block;font-size:13px}.admin-chip span{font-size:11px;color:var(--green)}
+
+/* ---------- Main ---------- */
+main{padding:24px 28px;min-width:0}
+.topbar{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+.topbar h1{font:500 24px Oswald,sans-serif;margin:0;letter-spacing:.01em}
+.topbar .sub{color:var(--dim);font-size:13px}
+.search{margin-left:auto;position:relative}
+.search input{width:260px;padding:9px 12px 9px 34px;background:var(--ink2);border:1px solid var(--line);border-radius:10px;color:var(--bone);font:inherit}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--dim)}
+#burger{display:none;background:none;border:1px solid var(--line);border-radius:8px;color:var(--bone);padding:8px 10px}
+
+/* ---------- Cards & stats ---------- */
+.grid{display:grid;gap:14px}
+.stats{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-bottom:22px}
+.stat{background:linear-gradient(160deg,var(--ink2),var(--ink));border:1px solid var(--line);border-radius:14px;padding:16px 18px;position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;inset:auto -30% -60% auto;width:140px;height:140px;background:radial-gradient(circle,oklch(72% .11 75/.12),transparent 70%)}
+.stat b{display:block;font:500 30px Oswald,sans-serif;color:var(--gold);line-height:1.1}
+.stat span{color:var(--mist);font-size:13px}
+.stat svg{width:20px;height:20px;color:var(--dim);position:absolute;top:16px;right:16px}
+
+.card{background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.card h3{font:500 17px Oswald,sans-serif;margin:0 0 12px;display:flex;align-items:center;gap:8px}
+h2{font:500 22px Oswald,sans-serif;margin:0 0 12px}
+.m{color:var(--mist);font-size:13px}.dim{color:var(--dim);font-size:12px}
+.grow{flex:1;min-width:0}.grow b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Buttons ---------- */
+.b{background:var(--gold);color:var(--ink);border:0;border-radius:10px;padding:10px 18px;font-weight:600;display:inline-flex;align-items:center;gap:8px}
+.b:hover{background:var(--gold2)}
+.g{background:none;color:var(--mist);border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+.g:hover{color:var(--bone);border-color:var(--mist)}
+.d{color:var(--blood);border-color:oklch(58% .19 25/.5)}
+.d:hover{border-color:var(--blood);color:var(--blood)}
+.sm{padding:6px 10px;font-size:13px;border-radius:8px}
+button:disabled{opacity:.5;cursor:not-allowed}
+
+/* ---------- Forms ---------- */
+label{display:block;color:var(--mist);font-size:13px;margin-top:14px}
+input,textarea,select{width:100%;margin-top:5px;padding:10px 12px;background:var(--ink);color:var(--bone);border:1px solid var(--line);border-radius:10px;font:inherit}
+input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:none}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.chk{display:flex;align-items:center;gap:9px;color:var(--bone);margin-top:18px}.chk input{width:auto;margin:0}
+
+/* ---------- Drama rows ---------- */
+.row{display:flex;gap:14px;align-items:center;background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:10px;width:100%;text-align:left;color:inherit;transition:border-color .15s}
+.row:hover{border-color:var(--gold)}
+.th{width:48px;height:66px;border-radius:8px;background:var(--ink3) center/cover;flex:none;display:grid;place-items:center;font:600 19px Oswald,sans-serif;color:var(--gold)}
+.chip{font-size:11px;border:1px solid var(--line);border-radius:99px;padding:2px 9px;color:var(--mist);white-space:nowrap}
+.chip.gold{color:var(--gold);border-color:oklch(72% .11 75/.5)}
+.chip.green{color:var(--green);border-color:oklch(70% .15 160/.4)}
+.bar{height:7px;background:var(--ink3);border-radius:4px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:4px;transition:width .3s}
+.pg-wrap{display:none;margin-top:14px}.pg-wrap.on{display:block}
+
+/* ---------- Toasts ---------- */
+#toasts{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:99}
+.toast{background:var(--ink3);border:1px solid var(--line);border-left:3px solid var(--gold);border-radius:10px;padding:11px 16px;font-size:13.5px;max-width:320px;box-shadow:0 10px 30px oklch(0% 0 0/.4);animation:tin .25s}
+.toast.err{border-left-color:var(--blood)}
+@keyframes tin{from{opacity:0;transform:translateX(20px)}to{opacity:1}}
+.empty{text-align:center;color:var(--dim);padding:44px 10px;border:1px dashed var(--line);border-radius:12px}
+
+.hint{background:var(--ink);border:1px dashed var(--line);border-radius:10px;padding:12px;font:12px/1.6 ui-monospace,monospace;color:var(--mist);overflow-x:auto;white-space:pre}
+.tabs{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.tab{background:var(--ink2);border:1px solid var(--line);color:var(--mist);border-radius:99px;padding:6px 14px;font-size:13px}
+.tab.on{color:var(--gold);border-color:oklch(72% .11 75/.5);background:oklch(72% .11 75/.08)}
+
+@media(max-width:860px){
+  #app.on{grid-template-columns:1fr}
+  aside{position:fixed;left:0;top:0;bottom:0;width:var(--side);transform:translateX(-100%);transition:transform .25s}
+  aside.open{transform:none;box-shadow:0 0 0 999px oklch(0% 0 0/.5)}
+  #burger{display:block}
+  main{padding:16px}
+  .search input{width:150px}
+  .two{grid-template-columns:1fr}
+}
+</style></head><body>
+
+<div id="login-view"><div class="login-card">
+  <div class="logo">Tele<i>drama</i> Studio</div>
+  <p class="m" style="margin:0 0 6px">Panneau d'administration</p>
+  <label>Mot de passe</label>
+  <input id="pw" type="password" autocomplete="current-password" placeholder="••••••••">
+  <p class="m" id="er" style="color:var(--blood);min-height:20px;margin:8px 0 0"></p>
+  <button class="b" id="go" style="width:100%;justify-content:center;margin-top:10px">Se connecter</button>
+</div></div>
+
+<div id="app">
+<aside id="side">
+  <div class="logo">Tele<i>drama</i><small>Studio · Admin</small></div>
+  <div class="side-label">Menu</div>
+  <button class="nv on" data-v="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Tableau de bord</button>
+  <button class="nv" data-v="cat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Catalogue</button>
+  <button class="nv" data-v="new"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Nouveau drama</button>
+  <button class="nv" data-v="stats"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-6 4 3 5-8"/></svg>Statistiques</button>
+  <div class="side-foot">
+    <div class="admin-chip"><div class="av">A</div><div><b>Administrateur</b><span>● en ligne</span></div></div>
+    <button class="nv" id="out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>Déconnexion</button>
+  </div>
+</aside>
+<main>
+  <div class="topbar">
+    <button id="burger">☰</button>
+    <div><h1 id="title">Tableau de bord</h1><div class="sub" id="subtitle"></div></div>
+    <div class="search" id="searchbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" placeholder="Rechercher un drama…"></div>
+  </div>
+  <div id="view"></div>
+</main>
+</div>
+
+<div id="toasts"></div>
+
 <script>
-const app=document.getElementById('app'),nav=document.getElementById('nav');
-let T=localStorage.getItem('t'),D=[],S={rows:[],total:0},cur=null,tab='cat';
+/* ============ Helpers ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+let T=localStorage.getItem('t'),D=[],S={rows:[],total:0},cur=null,vue='dash',q='',ftab='all';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=s=>!s?'–':s>=3600?Math.floor(s/3600)+' h '+String(Math.floor(s%3600/60)).padStart(2,'0'):Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+const toast=(m,err)=>{const t=document.createElement('div');t.className='toast'+(err?' err':'');t.textContent=m;$('#toasts').append(t);setTimeout(()=>{t.style.opacity=0;t.style.transition='opacity .4s';setTimeout(()=>t.remove(),400)},3800)};
 async function api(p,o={}){
   const h={Authorization:'Bearer '+T};
   if(o.body&&!(o.body instanceof FormData)){h['Content-Type']='application/json';o.body=JSON.stringify(o.body)}
   const r=await fetch('/api/'+p,{...o,headers:h});
-  if(r.status==401&&p!='login'){T=null;localStorage.removeItem('t');render();throw new Error('Session expirée')}
+  if(r.status===401&&p!=='login'){T=null;localStorage.removeItem('t');boot();throw new Error('Session expirée')}
   const d=await r.json();if(!r.ok)throw new Error(d.error||r.status);return d}
 function up(fd,cb){return new Promise((ok,ko)=>{const x=new XMLHttpRequest();x.open('POST','/api/upload');x.setRequestHeader('Authorization','Bearer '+T);
-  x.upload.onprogress=e=>cb(Math.round(e.loaded/e.total*100));
+  x.upload.onprogress=e=>cb(e.lengthComputable?Math.round(e.loaded/e.total*100):0);
   x.onload=()=>{let d={};try{d=JSON.parse(x.responseText)}catch{}x.status<300?ok():ko(new Error(d.error||x.status))};x.onerror=()=>ko(new Error('Erreur réseau'));x.send(fd)})}
 const dur=f=>new Promise(r=>{const v=document.createElement('video');v.preload='metadata';v.onloadedmetadata=()=>r(Math.round(v.duration)||0);v.onerror=()=>r(0);v.src=URL.createObjectURL(f)});
 async function load(){[D,S]=await Promise.all([api('dramas'),api('stats')])}
 const th=d=>'<div class="th" style="'+(d.poster?'background-image:url('+esc(d.poster)+')':'')+'">'+(d.poster?'':esc((d.title||'?')[0]))+'</div>';
-const FIELDS=[['title','Titre *','text'],['original_title','Titre original','text'],['tagline','Accroche','text'],['genre','Genre','text'],['year','Année','number'],['rating','Note sur 10','number'],['poster','URL du poster','url'],['cast_list','Distribution (séparée par des virgules)','text'],['tags','Tags (séparés par des virgules)','text']];
-function shell(h){
-  nav.innerHTML=T?'<button class="t '+(tab=='cat'?'on':'')+'" data-tab="cat">Catalogue</button><button class="t '+(tab=='st'?'on':'')+'" data-tab="st">Statistiques</button><button class="t" id="out">Quitter</button>':'';
-  app.innerHTML=h;
-  nav.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;cur=null;render()});
-  const o=document.getElementById('out');if(o)o.onclick=()=>{T=null;localStorage.removeItem('t');render()}}
-function login(){
-  shell('<div class="card"><h2>Connexion</h2><label>Mot de passe</label><input id="pw" type="password" autocomplete="current-password"><p class="m" id="er"></p><button class="b" id="go">Se connecter</button></div>');
-  const go=async()=>{try{const d=await api('login',{method:'POST',body:{password:document.getElementById('pw').value}});T=d.token;localStorage.setItem('t',T);render()}catch(e){document.getElementById('er').textContent=e.message}};
-  document.getElementById('go').onclick=go;document.getElementById('pw').onkeydown=e=>e.key=='Enter'&&go()}
-function catalogue(){
-  const n=D.reduce((s,d)=>s+d.episodes.length,0);
-  shell('<div class="stats"><div class="s"><b>'+D.length+'</b><span>Dramas</span></div><div class="s"><b>'+n+'</b><span>Épisodes</span></div><div class="s"><b>'+S.total+'</b><span>Vues</span></div></div>'
-  +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h2 style="margin:0">Catalogue</h2><button class="b" id="new">Nouveau drama</button></div>'
-  +(D.length?D.map(d=>'<button class="row" data-id="'+d.id+'">'+th(d)+'<span class="grow"><b>'+esc(d.title)+'</b><span class="m">'+esc([d.genre,d.year||''].filter(Boolean).join(' · '))+'</span><br><span class="m">'+d.episodes.length+' ép. · '+d.views+' vues</span></span><span class="chip">'+(d.status=='done'?'Terminé':'En cours')+'</span></button>').join(''):'<p class="m">Aucun drama pour l’instant. Créez le premier.</p>'));
-  document.getElementById('new').onclick=()=>{cur=0;render()};
-  app.querySelectorAll('.row').forEach(b=>b.onclick=()=>{cur=+b.dataset.id;render()})}
-function stats(){
+const FIELDS=[['title','Titre *','text','L’Héritier Disparu'],['original_title','Titre original','text','The Lost Heir'],['tagline','Accroche','text',''],['genre','Genre','text','Drame · Famille'],['year','Année','number','2025'],['rating','Note sur 10','number','9.2'],['trending','Rang tendance (1 = premier)','number',''],['poster','URL du poster (vide = affiche typographique)','url',''],['cast_list','Distribution (séparée par des virgules)','text',''],['tags','Tags (séparés par des virgules)','text','']];
+
+/* ============ Views ============ */
+function vDash(){
+  const nE=D.reduce((s,d)=>s+d.episodes.length,0),nF=D.filter(d=>d.featured).length,nV=S.total;
+  const top=[...S.rows].sort((a,b)=>b.v-a.v).slice(0,5),mx=Math.max(1,...top.map(r=>r.v));
+  const recent=[...D].slice(0,5);
+  return `<div class="grid stats">
+    <div class="stat"><b>${D.length}</b><span>Dramas publiés</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+    <div class="stat"><b>${nE}</b><span>Épisodes</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="6 4 20 12 6 20"/></svg></div>
+    <div class="stat"><b>${nV}</b><span>Vues totales</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+    <div class="stat"><b>${nF}</b><span>À la une</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01z"/></svg></div>
+  </div>
+  <div class="card"><h3>Actions rapides</h3><div style="display:flex;gap:10px;flex-wrap:wrap">
+    <button class="b" data-go="new">＋ Nouveau drama</button>
+    <button class="g" data-go="cat">Gérer le catalogue</button>
+    <button class="g" data-go="stats">Voir les statistiques</button>
+  </div></div>
+  <div class="two" style="align-items:start">
+    <div class="card"><h3>Top des dramas</h3>${top.length?top.map(r=>`<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;gap:10px"><span class="m" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.title)}</span><span class="dim" style="white-space:nowrap">${r.v} vues · ${r.n} ép.</span></div><div class="bar"><i style="width:${Math.round(r.v/mx*100)}%"></i></div></div>`).join(''):'<p class="m">Aucune vue pour l’instant.</p>'}</div>
+    <div class="card"><h3>Ajouts récents</h3>${recent.map(d=>`<button class="row" data-id="${d.id}" style="padding:8px 10px">${th(d)}<span class="grow"><b>${esc(d.title)}</b><span class="m">${d.episodes.length} ép.</span></span></button>`).join('')||'<p class="m">Rien pour l’instant.</p>'}</div>
+  </div>`;
+}
+
+function vCat(){
+  let list=D;
+  if(ftab==='new')list=list.filter(d=>d.isNew);
+  if(ftab==='feat')list=list.filter(d=>d.featured);
+  if(q)list=list.filter(d=>(d.title+' '+d.originalTitle+' '+d.genre+' '+d.tags.join(' ')).toLowerCase().includes(q));
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px">
+    <div class="tabs" style="margin:0">
+      <button class="tab ${ftab=='all'?'on':''}" data-f="all">Tous (${D.length})</button>
+      <button class="tab ${ftab=='new'?'on':''}" data-f="new">Nouveautés</button>
+      <button class="tab ${ftab=='feat'?'on':''}" data-f="feat">À la une</button>
+    </div>
+    <button class="b" data-go="new">＋ Nouveau</button></div>
+  ${list.length?list.map(d=>`<button class="row" data-id="${d.id}">${th(d)}
+    <span class="grow"><b>${esc(d.title)}</b><span class="m">${esc([d.originalTitle,d.genre,d.year||''].filter(Boolean).join(' · '))}</span><br><span class="m">${d.episodes.length} ép. · ${d.views} vues · note ${d.rating||'–'}</span></span>
+    ${d.featured?'<span class="chip gold">★ À la une</span>':''}${d.isNew?'<span class="chip green">Nouveau</span>':''}
+  </button>`).join(''):'<div class="empty">Aucun drama ne correspond.</div>'}`;
+}
+
+function vEdit(){
+  const d=D.find(x=>x.id==cur)||{episodes:[],tags:[],cast:[]};
+  const v={title:d.title,original_title:d.originalTitle,tagline:d.tagline,genre:d.genre,year:d.year,rating:d.rating,trending:d.trending,poster:d.poster,cast_list:(d.cast||[]).join(', '),tags:(d.tags||[]).join(', ')};
+  const nx=Math.max(0,...d.episodes.map(e=>e.n))+1;
+  return `<button class="g sm" data-go="cat">← Retour au catalogue</button>
+  <h2 style="margin-top:14px">${d.id?esc(d.title):'Nouveau drama'}</h2>
+  <div class="card"><h3>Informations</h3>
+    ${FIELDS.map(([k,l,t,p])=>`<label>${l}<input id="f_${k}" type="${t}" step="any" placeholder="${esc(p)}" value="${esc(v[k])}"></label>`).join('')}
+    <label>Synopsis<textarea id="f_synopsis" rows="4">${esc(d.synopsis)}</textarea></label>
+    <div style="display:flex;gap:22px;flex-wrap:wrap"><label class="chk"><input id="f_featured" type="checkbox" ${d.featured?'checked':''}> À la une (★)</label><label class="chk"><input id="f_is_new" type="checkbox" ${d.isNew?'checked':''}> Nouveau</label></div>
+    <div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="b" id="save">Enregistrer</button>${d.id?'<button class="g d" id="del">Supprimer le drama</button>':''}</div>
+  </div>
+  <div class="card"><h3>Épisodes (${d.episodes.length})</h3>
+  ${d.id?d.episodes.map(e=>`<div class="row" style="cursor:default"><span class="grow"><b>Ép. ${e.n}${e.title?' · '+esc(e.title):''}${e.free?' · gratuit':''}</b><span class="m">${fmt(e.seconds)} · ${e.viewsCount} vues</span></span><button class="g d sm" data-de="${e.id}">Retirer</button></div>`).join(''):'<p class="m">Enregistrez d’abord le drama : la zone d’envoi des vidéos apparaît ici.</p>'}
+  </div>
+  ${d.id?`<div class="card"><h3>Ajouter un épisode</h3>
+    <div class="two"><label>N°<input id="en" type="number" value="${nx}"></label><label>Titre de l'épisode<input id="et" placeholder="Optionnel"></label></div>
+    <label>Synopsis de l’épisode<textarea id="es" rows="2"></textarea></label>
+    <label class="chk"><input id="efree" type="checkbox"> Épisode gratuit</label>
+    <label>Vidéo (50 Mo max via Telegram)<input id="ef" type="file" accept="video/*"></label>
+    <div class="pg-wrap on" id="pgw"><div class="bar"><i id="pg" style="width:0%"></i></div><p class="dim" id="pgt" style="margin:6px 0 0">En attente…</p></div>
+    <button class="b" id="eu" style="margin-top:14px">Envoyer l'épisode</button>
+  </div>
+  <div class="card"><h3>Film long ? Découpe automatique</h3>
+    <p class="m">Une vidéo de 1 à 3 h se découpe sur Termux ou un PC (ffmpeg) en épisodes de 60 s, envoyés ici un par un.</p>
+    <div class="hint">export ADMIN_URL=${location.origin}\nexport ADMIN_PASSWORD=...\n./tools/split-upload.sh film.mp4 ${d.id} 60</div>
+  </div>`:''}`;
+}
+
+function vStats(){
   const mx=Math.max(1,...S.rows.map(r=>r.v));
-  shell('<h2>Statistiques</h2><div class="card"><b>'+S.total+' vues au total</b>'+S.rows.map(r=>'<div style="margin-top:12px"><div style="display:flex;justify-content:space-between"><span>'+esc(r.title)+'</span><span class="m">'+r.v+' vues · '+r.n+' ép.</span></div><div class="bar"><i style="width:'+Math.round(r.v/mx*100)+'%"></i></div></div>').join('')+'</div>')}
-function edit(){
-  const d=D.find(x=>x.id==cur)||{episodes:[],tags:[],status:'ongoing'};
-  const v=k=>k=='tags'?d.tags.join(', '):(d[k]??'');
-  shell('<button class="g" id="back">Retour</button><h2 style="margin-top:12px">'+(d.id?esc(d.title):'Nouveau drama')+'</h2><div class="card">'
-  +FIELDS.map(([k,l,t])=>'<label>'+l+'<input id="f_'+k+'" type="'+t+'" step="any" value="'+esc(v(k))+'"></label>').join('')
-  +'<label>Synopsis<textarea id="f_synopsis" rows="4">'+esc(d.synopsis)+'</textarea></label>'
-  +'<div class="two"><label>Statut<select id="f_status"><option value="ongoing">En cours</option><option value="done">Terminé</option></select></label><label class="chk" style="margin-top:34px"><input id="f_featured" type="checkbox" '+(d.featured?'checked':'')+'>À la une</label></div>'
-  +'<div style="display:flex;gap:8px;margin-top:16px"><button class="b" id="save">Enregistrer</button>'+(d.id?'<button class="g d" id="del">Supprimer</button>':'')+'</div></div>'
-  +(d.id?'<h3>Épisodes ('+d.episodes.length+')</h3>'+d.episodes.map(e=>'<div class="row"><span class="grow"><b>Ép. '+e.num+(e.title?' · '+esc(e.title):'')+'</b><span class="m">'+fmt(e.duration)+' · '+e.views+' vues</span></span><button class="g d" data-de="'+e.id+'">Retirer</button></div>').join('')
-  +'<div class="card"><b>Ajouter un épisode</b><div class="two"><label>N°<input id="en" type="number" value="'+(d.episodes.length?Math.max(...d.episodes.map(e=>e.num))+1:1)+'"></label><label>Titre<input id="et"></label></div><label>Vidéo (50 Mo max)<input id="ef" type="file" accept="video/*"></label><div class="bar"><i id="pg" style="width:0"></i></div><button class="b" id="eu" style="margin-top:12px">Envoyer</button>'
-  +'<h3>Film long ? Découpe automatique</h3><p class="m">Une vidéo de 1 à 3 h se découpe sur Termux ou un PC (ffmpeg), puis chaque épisode est envoyé ici.</p><div class="hint">export ADMIN_URL='+location.origin+'\nexport ADMIN_PASSWORD=...\n./tools/split-upload.sh film.mp4 '+d.id+' 120</div></div>':''));
-  document.getElementById('f_status').value=d.status||'ongoing';
-  document.getElementById('back').onclick=()=>{cur=null;render()};
-  document.getElementById('save').onclick=async()=>{const x={id:d.id};FIELDS.forEach(([k])=>x[k]=document.getElementById('f_'+k).value);x.synopsis=document.getElementById('f_synopsis').value;x.status=document.getElementById('f_status').value;x.featured=document.getElementById('f_featured').checked?1:0;
-    try{await api('dramas',{method:'POST',body:x});await load();if(!d.id)cur=null;render()}catch(e){alert(e.message)}};
-  const del=document.getElementById('del');if(del)del.onclick=async()=>{if(confirm('Supprimer ce drama et tous ses épisodes ?')){await api('dramas/'+d.id,{method:'DELETE'});await load();cur=null;render()}};
-  app.querySelectorAll('[data-de]').forEach(b=>b.onclick=async()=>{if(confirm('Retirer cet épisode ?')){await api('episodes/'+b.dataset.de,{method:'DELETE'});await load();render()}});
-  const eu=document.getElementById('eu');if(eu)eu.onclick=async()=>{const f=document.getElementById('ef').files[0];if(!f)return alert('Choisissez une vidéo');
-    const fd=new FormData();fd.append('file',f);fd.append('drama_id',d.id);fd.append('num',document.getElementById('en').value);fd.append('title',document.getElementById('et').value);fd.append('duration',await dur(f));
-    eu.disabled=true;eu.textContent='Envoi…';
-    try{await up(fd,p=>document.getElementById('pg').style.width=p+'%');await load();render()}catch(e){alert(e.message);eu.disabled=false;eu.textContent='Envoyer'}}}
+  const eps=D.flatMap(d=>d.episodes.map(e=>({...e,t:d.title}))).sort((a,b)=>b.viewsCount-a.viewsCount).slice(0,10);
+  const em=Math.max(1,...eps.map(e=>e.viewsCount));
+  return `<div class="grid stats">
+    <div class="stat"><b>${S.total}</b><span>Vues totales</span></div>
+    <div class="stat"><b>${D.length}</b><span>Dramas</span></div>
+    <div class="stat"><b>${D.reduce((s,d)=>s+d.episodes.length,0)}</b><span>Épisodes</span></div>
+  </div>
+  <div class="card"><h3>Vues par drama</h3>${S.rows.length?S.rows.map(r=>`<div style="margin-top:12px"><div style="display:flex;justify-content:space-between;gap:10px"><span>${esc(r.title)}</span><span class="m">${r.v} vues · ${r.n} ép.</span></div><div class="bar"><i style="width:${Math.round(r.v/mx*100)}%"></i></div></div>`).join(''):'<p class="m">Aucune donnée.</p>'}</div>
+  <div class="card"><h3>Épisodes les plus vus (top 10)</h3>${eps.map(e=>`<div style="margin-top:10px"><div style="display:flex;justify-content:space-between;gap:10px"><span class="m">${esc(e.t)} — Ép. ${e.n}</span><span class="dim">${e.viewsCount} vues</span></div><div class="bar"><i style="width:${Math.round(e.viewsCount/em*100)}%"></i></div></div>`).join('')||'<p class="m">Aucun épisode.</p>'}</div>`;
+}
+
+/* ============ Router ============ */
+const TITLES={dash:['Tableau de bord','Aperçu général de votre studio'],cat:['Catalogue','Gérez vos dramas et épisodes'],new:['Nouveau drama','Créez une nouvelle fiche'],edit:['Modifier le drama',''],stats:['Statistiques','Performance de votre contenu']};
 async function render(){
-  if(!T)return login();
-  try{await load()}catch{return}
-  if(tab=='st')stats();else if(cur!==null)edit();else catalogue()}
-render();
+  if(!T)return boot();
+  try{await load()}catch(e){return}
+  $('#view').innerHTML = vue==='dash'?vDash():vue==='cat'?vCat():vue==='stats'?vStats():vEdit();
+  const [t,s]=TITLES[vue]||TITLES.dash;$('#title').textContent=vue==='edit'?((D.find(x=>x.id==cur)||{}).title||'Nouveau drama'):t;$('#subtitle').textContent=s;
+  $$('.nv[data-v]').forEach(b=>b.classList.toggle('on',b.dataset.v===(vue==='edit'?'cat':vue)));
+  bind();
+}
+function bind(){
+  $$('[data-go]').forEach(b=>b.onclick=()=>{vue=b.dataset.go;if(vue==='new')cur=null;render();$('#side').classList.remove('open')});
+  $$('.tab[data-f]').forEach(b=>b.onclick=()=>{ftab=b.dataset.f;render()});
+  $$('#view [data-id]').forEach(b=>b.onclick=()=>{cur=+b.dataset.id;vue='edit';render()});
+  const qi=$('#q');qi.value=q;qi.oninput=()=>{q=qi.value.trim().toLowerCase();if(vue!=='cat')vue='cat';render();const n=$('#q');n.focus();n.setSelectionRange(999,999)};
+  const sv=$('#save');if(sv)sv.onclick=async()=>{
+    const d=D.find(x=>x.id==cur)||{};
+    const x={id:d.id};FIELDS.forEach(([k])=>x[k]=$('#f_'+k).value);
+    x.synopsis=$('#f_synopsis').value;x.featured=$('#f_featured').checked?1:0;x.is_new=$('#f_is_new').checked?1:0;
+    sv.disabled=true;
+    try{const r=await api('dramas',{method:'POST',body:x});cur=r.id;vue='edit';toast('Drama enregistré ✓');render()}catch(e){toast(e.message,true)}finally{sv.disabled=false}};
+  const dl=$('#del');if(dl)dl.onclick=async()=>{if(confirm('Supprimer ce drama et tous ses épisodes ?')){await api('dramas/'+cur,{method:'DELETE'});await load();cur=null;vue='cat';toast('Drama supprimé');render()}};
+  $$('#view [data-de]').forEach(b=>b.onclick=async()=>{if(confirm('Retirer cet épisode ?')){await api('episodes/'+b.dataset.de,{method:'DELETE'});await load();toast('Épisode retiré');render()}});
+  const eu=$('#eu');if(eu)eu.onclick=async()=>{
+    const f=$('#ef').files[0];if(!f)return toast('Choisissez une vidéo',true);
+    const fd=new FormData();fd.append('file',f);fd.append('drama_id',cur);fd.append('num',$('#en').value);fd.append('title',$('#et').value);fd.append('synopsis',$('#es').value);fd.append('free',$('#efree').checked?'1':'0');fd.append('duration',await dur(f));
+    eu.disabled=true;eu.textContent='Envoi…';$('#pgw').classList.add('on');
+    try{await up(fd,p=>{$('#pg').style.width=p+'%';$('#pgt').textContent=p+'% — envoi en cours…'});await load();toast('Épisode envoyé ✓');render()}catch(e){toast(e.message,true);eu.disabled=false;eu.textContent='Envoyer l\'épisode'}};
+}
+
+/* ============ Boot & auth ============ */
+function boot(){
+  const logged=!!T;
+  $('#login-view').style.display=logged?'none':'grid';
+  $('#app').classList.toggle('on',logged);
+  if(logged){render()}else{$('#pw').value='';$('#er').textContent=''}
+}
+$('#go').onclick=async()=>{
+  try{const d=await api('login',{method:'POST',body:{password:$('#pw').value}});T=d.token;localStorage.setItem('t',T);toast('Bienvenue !');boot()}catch(e){$('#er').textContent=e.message}};
+$('#pw').onkeydown=e=>e.key==='Enter'&&$('#go').click();
+$('#out').onclick=()=>{T=null;localStorage.removeItem('t');boot()};
+$('#burger').onclick=()=>$('#side').classList.toggle('open');
+$$('.nv[data-v]').forEach(b=>b.onclick=()=>{vue=b.dataset.v;if(vue==='new')cur=null;render();$('#side').classList.remove('open')});
+boot();
 </script></body></html>
