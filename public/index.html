@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Teledrama Studio — Admin Pro</title>
+<meta name="theme-color" content="#0b0f16"><link rel="manifest" href="/manifest.webmanifest"><link rel="icon" type="image/svg+xml" href="/logo.svg"><link rel="apple-touch-icon" href="/icon-maskable-512.png"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--ink:oklch(13% .02 255);--ink2:oklch(17% .025 255);--ink3:oklch(22% .025 255);--line:oklch(28% .02 255/.55);--bone:oklch(96% .01 80);--mist:oklch(75% .02 255);--dim:oklch(58% .02 255);--gold:oklch(72% .11 75);--gold2:oklch(80% .12 80);--blood:oklch(58% .19 25);--green:oklch(70% .15 160);--side:248px}
@@ -104,10 +105,11 @@ input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:none}
   .search input{width:150px}
   .two{grid-template-columns:1fr}
 }
+.logo{display:flex;align-items:center;gap:10px}.logo img{border-radius:8px;flex:none}
 </style></head><body>
 
 <div id="login-view"><div class="login-card">
-  <div class="logo">Tele<i>drama</i> Studio</div>
+  <div class="logo"><img src="/logo.svg" alt="" width="34" height="34"><span>Tele<i>drama</i> Studio</span></div>
   <p class="m" style="margin:0 0 6px">Panneau d'administration</p>
   <label>Mot de passe</label>
   <input id="pw" type="password" autocomplete="current-password" placeholder="••••••••">
@@ -117,7 +119,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--gold);outline:none}
 
 <div id="app">
 <aside id="side">
-  <div class="logo">Tele<i>drama</i><small>Studio · Admin</small></div>
+  <div class="logo"><img src="/logo.svg" alt="" width="34" height="34"><span>Tele<i>drama</i><small>Studio · Admin</small></span></div>
   <div class="side-label">Menu</div>
   <button class="nv on" data-v="dash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Tableau de bord</button>
   <button class="nv" data-v="cat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Catalogue</button>
@@ -292,4 +294,5 @@ $('#out').onclick=()=>{T=null;localStorage.removeItem('t');boot()};
 $('#burger').onclick=()=>$('#side').classList.toggle('open');
 $$('.nv[data-v]').forEach(b=>b.onclick=()=>{vue=b.dataset.v;if(vue==='new')cur=null;render();$('#side').classList.remove('open')});
 boot();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 </script></body></html>
